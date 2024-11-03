@@ -1,15 +1,18 @@
 package gateway
 
-import "net/http"
+import (
+	"github.com/julienschmidt/httprouter"
+	"net/http"
+)
 
 type Handlers struct {
 	HealthCheckHandler http.HandlerFunc
 }
 
 func Routes(handlers Handlers) http.Handler {
-	mux := http.NewServeMux()
+	router := httprouter.New()
 
-	mux.HandleFunc("GET /healthcheck", handlers.HealthCheckHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", handlers.HealthCheckHandler)
 
-	return mux
+	return router
 }

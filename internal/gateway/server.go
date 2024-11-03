@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-func Server(mux http.Handler) error {
+func Server(router http.Handler) error {
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", config.Appconfig.ServerAddress),
-		Handler:      mux,
+		Handler:      router,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
