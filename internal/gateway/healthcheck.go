@@ -9,12 +9,15 @@ import (
 const version = "1.0.0"
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
-	data := map[string]string{
-		"status":      "available",
-		"environment": config.Appconfig.Env,
-		"version":     version,
+	env := envelope{
+		"status": "available",
+		"system_info": map[string]string{
+			"environment": config.Appconfig.Env,
+			"version":     version,
+		},
 	}
-	if err := writeJSON(w, http.StatusOK, data, nil); err != nil {
+
+	if err := writeJSON(w, http.StatusOK, env, nil); err != nil {
 		logger.Logger.Error(err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
