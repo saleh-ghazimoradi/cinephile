@@ -17,8 +17,12 @@ var httpCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logger.Logger.Info("server has started", "addr", config.Appconfig.ServerAddress, "env", config.Appconfig.Env)
 
+		movieHandler := gateway.NewMovieHandler()
+
 		routesHandler := gateway.Handlers{
 			HealthCheckHandler: gateway.HealthCheckHandler,
+			ShowMovieHandler:   movieHandler.ShowMovieHandler,
+			CreateMovieHandler: movieHandler.CreateMovieHandler,
 		}
 
 		if err := gateway.Server(gateway.Routes(routesHandler)); err != nil {
