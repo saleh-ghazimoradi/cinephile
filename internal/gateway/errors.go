@@ -11,6 +11,7 @@ func logError(r *http.Request, err error) {
 		method = r.Method
 		uri    = r.URL.RequestURI()
 	)
+
 	logger.Logger.Error(err.Error(), "method", method, "uri", uri)
 }
 
@@ -20,12 +21,13 @@ func errorResponse(w http.ResponseWriter, r *http.Request, status int, message a
 	err := writeJSON(w, status, env, nil)
 	if err != nil {
 		logError(r, err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(500)
 	}
 }
 
 func serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	logError(r, err)
+
 	message := "the server encountered a problem and could not process your request"
 	errorResponse(w, r, http.StatusInternalServerError, message)
 }
@@ -36,7 +38,7 @@ func notFoundResponse(w http.ResponseWriter, r *http.Request) {
 }
 
 func methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
-	message := fmt.Sprintf("the %s method is not allowed", r.Method)
+	message := fmt.Sprintf("the %s method is not supported for this resource", r.Method)
 	errorResponse(w, r, http.StatusMethodNotAllowed, message)
 }
 
