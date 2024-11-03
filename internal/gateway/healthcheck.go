@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"github.com/saleh-ghazimoradi/cinephile/config"
-	"github.com/saleh-ghazimoradi/cinephile/logger"
 	"net/http"
 )
 
@@ -18,7 +17,6 @@ func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := writeJSON(w, http.StatusOK, env, nil); err != nil {
-		logger.Logger.Error(err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		serverErrorResponse(w, r, err)
 	}
 }
