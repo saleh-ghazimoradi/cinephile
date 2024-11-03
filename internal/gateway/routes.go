@@ -14,6 +14,9 @@ type Handlers struct {
 func Routes(handlers Handlers) http.Handler {
 	router := httprouter.New()
 
+	router.NotFound = http.HandlerFunc(notFoundResponse)
+	router.MethodNotAllowed = http.HandlerFunc(methodNotAllowedResponse)
+
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", handlers.HealthCheckHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", handlers.ShowMovieHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/movies", handlers.CreateMovieHandler)
