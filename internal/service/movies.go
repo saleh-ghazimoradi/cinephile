@@ -18,19 +18,19 @@ type movieService struct {
 }
 
 func (s *movieService) Create(ctx context.Context, movie *service_models.Movie) error {
-	return nil
+	return s.movieRepo.Create(ctx, movie)
 }
 
 func (s *movieService) Get(ctx context.Context, id int64) (*service_models.Movie, error) {
-	return nil, nil
+	return s.movieRepo.Get(ctx, id)
 }
 
 func (s *movieService) Update(ctx context.Context, movie *service_models.Movie) error {
-	return nil
+	return s.movieRepo.Update(ctx, movie)
 }
 
 func (s *movieService) Delete(ctx context.Context, id int64) error {
-	return nil
+	return s.movieRepo.Delete(ctx, id)
 }
 
 func NewMovieService(movieRepo repository.Movie) Movie {
