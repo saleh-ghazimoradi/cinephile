@@ -38,7 +38,7 @@ var httpCmd = &cobra.Command{
 
 		db, err := utils.PostgresConnection(cfg)
 		if err != nil {
-			logger.Logger.Error(err.Error())
+			log.Fatal(err)
 		}
 
 		movieDB := repository.NewMovieRepository(db)
@@ -49,6 +49,8 @@ var httpCmd = &cobra.Command{
 			HealthCheckHandler: gateway.HealthCheckHandler,
 			ShowMovieHandler:   movieHandler.ShowMovieHandler,
 			CreateMovieHandler: movieHandler.CreateMovieHandler,
+			UpdateMovieHandler: movieHandler.UpdateMovieHandler,
+			DeleteMovieHandler: movieHandler.DeleteMovieHandler,
 		}
 
 		if err := gateway.Server(gateway.Routes(routesHandler)); err != nil {
