@@ -119,7 +119,12 @@ func (m *movieHandler) UpdateMovieHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	if err = m.movieService.Update(r.Context(), movie); err != nil {
-		serverErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, repository.ErrRecordNotFound):
+			editConflictResponse(w, r)
+		default:
+			serverErrorResponse(w, r, err)
+		}
 		return
 	}
 

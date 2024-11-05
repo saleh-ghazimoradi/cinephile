@@ -56,7 +56,7 @@ func (m *movieRepository) Update(ctx context.Context, movie *service_models.Movi
 	query := `
         UPDATE movies 
         SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1
-        WHERE id = $5
+        WHERE id = $5 AND version = $6
         RETURNING version`
 
 	args := []any{
@@ -65,8 +65,18 @@ func (m *movieRepository) Update(ctx context.Context, movie *service_models.Movi
 		movie.Runtime,
 		pq.Array(movie.Genres),
 		movie.ID,
+		movie.Version,
 	}
-	return m.db.QueryRowContext(ctx, query, args...).Scan(&movie.Version)
+
+	if err := m.db.QueryRowContext(ctx, query, args...).Scan(&movie.Version); err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ErrEditConflict
+		default:
+			return err
+		}
+	}
+	return nil
 }
 
 func (m *movieRepository) Delete(ctx context.Context, id int64) error {
