@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/lib/pq"
 	"github.com/saleh-ghazimoradi/cinephile/internal/service/service_models"
+	"time"
 )
 
 type Movie interface {
@@ -25,6 +26,9 @@ func (m *movieRepository) Create(ctx context.Context, movie *service_models.Movi
         VALUES ($1, $2, $3, $4)
         RETURNING id, created_at, version`
 
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
 	args := []any{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
 
 	return m.db.QueryRowContext(ctx, query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
@@ -35,6 +39,9 @@ func (m *movieRepository) Get(ctx context.Context, id int64) (*service_models.Mo
         SELECT id, created_at, title, year, runtime, genres, version
         FROM movies
         WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
 
 	var movie service_models.Movie
 
@@ -68,6 +75,9 @@ func (m *movieRepository) Update(ctx context.Context, movie *service_models.Movi
 		movie.Version,
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
 	if err := m.db.QueryRowContext(ctx, query, args...).Scan(&movie.Version); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -81,6 +91,9 @@ func (m *movieRepository) Update(ctx context.Context, movie *service_models.Movi
 
 func (m *movieRepository) Delete(ctx context.Context, id int64) error {
 	query := `DELETE FROM movies WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
 
 	result, err := m.db.ExecContext(ctx, query, id)
 	if err != nil {
