@@ -11,6 +11,7 @@ type Handlers struct {
 	CreateMovieHandler http.HandlerFunc
 	UpdateMovieHandler http.HandlerFunc
 	DeleteMovieHandler http.HandlerFunc
+	ListMoviesHandler  http.HandlerFunc
 }
 
 func Routes(handlers Handlers) http.Handler {
@@ -21,6 +22,7 @@ func Routes(handlers Handlers) http.Handler {
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", handlers.HealthCheckHandler)
 	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", handlers.ShowMovieHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/movies", handlers.ListMoviesHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/movies", handlers.CreateMovieHandler)
 	router.HandlerFunc(http.MethodPatch, "/v1/movies/:id", handlers.UpdateMovieHandler)
 	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", handlers.DeleteMovieHandler)

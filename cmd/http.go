@@ -51,6 +51,7 @@ var httpCmd = &cobra.Command{
 			CreateMovieHandler: movieHandler.CreateMovieHandler,
 			UpdateMovieHandler: movieHandler.UpdateMovieHandler,
 			DeleteMovieHandler: movieHandler.DeleteMovieHandler,
+			ListMoviesHandler:  movieHandler.ListMoviesHandler,
 		}
 
 		if err := gateway.Server(gateway.Routes(routesHandler)); err != nil {
