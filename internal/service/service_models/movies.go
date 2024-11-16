@@ -17,33 +17,23 @@ type Movie struct {
 }
 
 type MoviePayload struct {
-	Title   string   `json:"title"`
-	Year    int32    `json:"year"`
-	Runtime int32    `json:"runtime"`
-	Genres  []string `json:"genres"`
+	Title   string   `json:"title" validate:"required,max=100"`
+	Year    int32    `json:"year" validate:"required"`
+	Runtime int32    `json:"runtime" validate:"required"`
+	Genres  []string `json:"genres" validate:"required,gte=1"`
 }
 
 type UpdateMoviePayload struct {
-	Title   *string  `json:"title"`
-	Year    *int32   `json:"year"`
-	Runtime *int32   `json:"runtime"`
-	Genres  []string `json:"genres"`
-}
-
-type WithPagination struct {
-	Title  string   `json:"title"`
-	Genres []string `json:"genres"`
-	Filter `json:"filter"`
+	Title   *string  `json:"title" validate:"required,max=100"`
+	Year    *int32   `json:"year" validate:"required"`
+	Runtime *int32   `json:"runtime" validate:"required"`
+	Genres  []string `json:"genres" validate:"required,gte=2"`
 }
 
 type Filter struct {
 	Limit  int    `json:"limit" validate:"gte=1,lte=20"`
 	Offset int    `json:"offset" validate:"gte=0"`
 	Sort   string `json:"sort" validate:"oneof=asc desc"`
-}
-
-type MovieWithMetaData struct {
-	Movie
 }
 
 func (fq Filter) Parse(r *http.Request) (Filter, error) {
