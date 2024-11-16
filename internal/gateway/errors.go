@@ -43,7 +43,9 @@ func methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
 }
 
 func badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
-	errorResponse(w, r, http.StatusBadRequest, err)
+	logError(r, err)
+	message := "the requested resource could not be processed"
+	errorResponse(w, r, http.StatusBadRequest, message)
 }
 
 func editConflictResponse(w http.ResponseWriter, r *http.Request) {
