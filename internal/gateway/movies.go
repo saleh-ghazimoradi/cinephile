@@ -20,6 +20,11 @@ func (m *movieHandler) CreateMovieHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if err := Validate.Struct(payload); err != nil {
+		badRequestResponse(w, r, err)
+		return
+	}
+
 	movie := &service_models.Movie{
 		Title:   payload.Title,
 		Year:    payload.Year,
@@ -78,7 +83,7 @@ func (m *movieHandler) ListMoviesHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := Validate.Struct(fq); err != nil {
+	if err = Validate.Struct(fq); err != nil {
 		badRequestResponse(w, r, err)
 		return
 	}
@@ -99,6 +104,11 @@ func (m *movieHandler) UpdateMovieHandler(w http.ResponseWriter, r *http.Request
 	id, err := readIDParam(r)
 	if err != nil {
 		notFoundResponse(w, r)
+		return
+	}
+
+	if err = Validate.Struct(payload); err != nil {
+		badRequestResponse(w, r, err)
 		return
 	}
 
