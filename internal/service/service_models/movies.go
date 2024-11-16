@@ -1,6 +1,8 @@
 package service_models
 
 import (
+	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -35,12 +37,42 @@ type WithPagination struct {
 }
 
 type Filter struct {
-	Page     int    `json:"page" validate:"gte=0,lte=10000000"`
-	PageSize int    `json:"page_size" validate:"gte=1,lte=20"`
-	Sort     string `json:"sort" validate:"oneof=asc desc"`
+	Limit  int    `json:"limit" validate:"gte=1,lte=20"`
+	Offset int    `json:"offset" validate:"gte=0"`
+	Sort   string `json:"sort" validate:"oneof=asc desc"`
 }
 
 type MovieWithMetaData struct {
 	Movie
-	MovieCount int `json:"movie_count"`
+}
+
+func (fq Filter) Parse(r *http.Request) (Filter, error) {
+	qs := r.URL.Query()
+
+	limit := qs.Get("limit")
+	if limit != "" {
+		l, err := strconv.Atoi(limit)
+		if err != nil {
+			return fq, nil
+		}
+
+		fq.Limit = l
+	}
+
+	offset := qs.Get("offset")
+	if offset != "" {
+		l, err := strconv.Atoi(offset)
+		if err != nil {
+			return fq, nil
+		}
+
+		fq.Offset = l
+	}
+
+	sort := qs.Get("sort")
+	if sort != "" {
+		fq.Sort = sort
+	}
+
+	return fq, nil
 }

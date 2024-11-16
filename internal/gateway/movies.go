@@ -9,26 +9,12 @@ import (
 	"net/http"
 )
 
-type moviePayload struct {
-	Title   string   `json:"title"`
-	Year    int32    `json:"year"`
-	Runtime int32    `json:"runtime"`
-	Genres  []string `json:"genres"`
-}
-
-type updateMoviePayload struct {
-	Title   *string  `json:"title"`
-	Year    *int32   `json:"year"`
-	Runtime *int32   `json:"runtime"`
-	Genres  []string `json:"genres"`
-}
-
 type movieHandler struct {
 	movieService service.Movie
 }
 
 func (m *movieHandler) CreateMovieHandler(w http.ResponseWriter, r *http.Request) {
-	var payload moviePayload
+	var payload service_models.MoviePayload
 	if err := readJSON(w, r, &payload); err != nil {
 		badRequestResponse(w, r, err)
 		return
@@ -78,8 +64,38 @@ func (m *movieHandler) ShowMovieHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+func (m *movieHandler) ListMoviesHandler(w http.ResponseWriter, r *http.Request) {
+	p := service_models.Filter{
+		Limit:  20,
+		Offset: 0,
+		Sort:   "desc",
+	}
+
+	fq, err := p.Parse(r)
+
+	if err != nil {
+		badRequestResponse(w, r, err)
+		return
+	}
+
+	if err := Validate.Struct(fq); err != nil {
+		badRequestResponse(w, r, err)
+		return
+	}
+
+	movies, err := m.movieService.GetAll(r.Context(), fq)
+	if err != nil {
+		serverErrorResponse(w, r, err)
+		return
+	}
+
+	if err := writeJSON(w, http.StatusOK, envelope{"movies": movies}, nil); err != nil {
+		serverErrorResponse(w, r, err)
+	}
+}
+
 func (m *movieHandler) UpdateMovieHandler(w http.ResponseWriter, r *http.Request) {
-	var payload updateMoviePayload
+	var payload service_models.UpdateMoviePayload
 	id, err := readIDParam(r)
 	if err != nil {
 		notFoundResponse(w, r)

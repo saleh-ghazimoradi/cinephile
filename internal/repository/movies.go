@@ -12,7 +12,7 @@ import (
 type Movie interface {
 	Create(ctx context.Context, movie *service_models.Movie) error
 	Get(ctx context.Context, id int64) (*service_models.Movie, error)
-	GetAll(ctx context.Context, id int64, fq service_models.WithPagination) ([]*service_models.MovieWithMetaData, error)
+	GetAll(ctx context.Context, fq service_models.Filter) ([]*service_models.Movie, error)
 	Update(ctx context.Context, movie *service_models.Movie) error
 	Delete(ctx context.Context, id int64) error
 }
@@ -60,25 +60,31 @@ func (m *movieRepository) Get(ctx context.Context, id int64) (*service_models.Mo
 	return &movie, nil
 }
 
-func (m *movieRepository) GetAll(ctx context.Context, id int64, fq service_models.WithPagination) ([]*service_models.MovieWithMetaData, error) {
-	query := `SELECT id, created_at, title, year, runtime, genres, version FROM movies ORDER BY id` + fq.Sort + `LIMIT $1 OFFSET $2`
+func (m *movieRepository) GetAll(ctx context.Context, fq service_models.Filter) ([]*service_models.Movie, error) {
+	query := `SELECT id, created_at, title, year, runtime, genres, version 
+              FROM movies 
+              ORDER BY id ` + fq.Sort + ` 
+              LIMIT $1 OFFSET $2`
+
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	rows, err := m.db.QueryContext(ctx, query, id, fq.Limit, fq.Offset)
+	rows, err := m.db.QueryContext(ctx, query, fq.Limit, fq.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var movies []*service_models.MovieWithMetaData
+
+	var movies []*service_models.Movie
 	for rows.Next() {
-		var movie service_models.MovieWithMetaData
-		err = rows.Scan(&movie.ID, &movie.CreatedAt, &movie.Title, &movie.Year, &movie.Runtime, &movie.Genres, &movie.Version)
+		var movie service_models.Movie
+		err = rows.Scan(&movie.ID, &movie.CreatedAt, &movie.Title, &movie.Year, &movie.Runtime, pq.Array(movie.Genres), &movie.Version)
 		if err != nil {
 			return nil, err
 		}
 		movies = append(movies, &movie)
 	}
+
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}

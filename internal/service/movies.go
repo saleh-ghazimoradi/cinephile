@@ -9,7 +9,7 @@ import (
 type Movie interface {
 	Create(ctx context.Context, movie *service_models.Movie) error
 	Get(ctx context.Context, id int64) (*service_models.Movie, error)
-	GetAll(ctx context.Context, id int64, fq service_models.WithPagination) ([]*service_models.MovieWithMetaData, error)
+	GetAll(ctx context.Context, fq service_models.Filter) ([]*service_models.Movie, error)
 	Update(ctx context.Context, movie *service_models.Movie) error
 	Delete(ctx context.Context, id int64) error
 }
@@ -34,8 +34,8 @@ func (s *movieService) Delete(ctx context.Context, id int64) error {
 	return s.movieRepo.Delete(ctx, id)
 }
 
-func (s *movieService) GetAll(ctx context.Context, id int64, fq service_models.WithPagination) ([]*service_models.MovieWithMetaData, error) {
-	return s.movieRepo.GetAll(ctx, id, fq)
+func (s *movieService) GetAll(ctx context.Context, fq service_models.Filter) ([]*service_models.Movie, error) {
+	return s.movieRepo.GetAll(ctx, fq)
 }
 
 func NewMovieService(movieRepo repository.Movie) Movie {
