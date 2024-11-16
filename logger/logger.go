@@ -8,4 +8,4 @@ import (
 
 //var Logger *slog.Logger
 
-var Logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
+var Logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
