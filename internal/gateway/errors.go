@@ -57,3 +57,8 @@ func rateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
 	message := "rate limit exceeded"
 	errorResponse(w, r, http.StatusTooManyRequests, message)
 }
+
+func conflictResponse(w http.ResponseWriter, r *http.Request, err error) {
+	logger.Logger.Error("conflict response: %s path: %s error: %s", r.Method, r.URL.Path, err.Error())
+	errorResponse(w, r, http.StatusConflict, err.Error())
+}
