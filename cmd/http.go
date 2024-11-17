@@ -42,16 +42,19 @@ var httpCmd = &cobra.Command{
 		}
 
 		movieDB := repository.NewMovieRepository(db)
+		userDB := repository.NewUserRepository(db)
 		movieService := service.NewMovieService(movieDB)
+		userService := service.NewUserService(userDB)
 		movieHandler := gateway.NewMovieHandler(movieService)
-
+		userHandler := gateway.NewUserHandler(userService)
 		routesHandler := gateway.Handlers{
-			HealthCheckHandler: gateway.HealthCheckHandler,
-			ShowMovieHandler:   movieHandler.ShowMovieHandler,
-			CreateMovieHandler: movieHandler.CreateMovieHandler,
-			UpdateMovieHandler: movieHandler.UpdateMovieHandler,
-			DeleteMovieHandler: movieHandler.DeleteMovieHandler,
-			ListMoviesHandler:  movieHandler.ListMoviesHandler,
+			HealthCheckHandler:  gateway.HealthCheckHandler,
+			ShowMovieHandler:    movieHandler.ShowMovieHandler,
+			CreateMovieHandler:  movieHandler.CreateMovieHandler,
+			UpdateMovieHandler:  movieHandler.UpdateMovieHandler,
+			DeleteMovieHandler:  movieHandler.DeleteMovieHandler,
+			ListMoviesHandler:   movieHandler.ListMoviesHandler,
+			RegisterUserHandler: userHandler.RegisterUserHandler,
 		}
 
 		if err := gateway.Server(gateway.Routes(routesHandler)); err != nil {

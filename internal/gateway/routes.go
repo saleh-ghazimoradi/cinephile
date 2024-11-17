@@ -6,12 +6,13 @@ import (
 )
 
 type Handlers struct {
-	HealthCheckHandler http.HandlerFunc
-	ShowMovieHandler   http.HandlerFunc
-	CreateMovieHandler http.HandlerFunc
-	UpdateMovieHandler http.HandlerFunc
-	DeleteMovieHandler http.HandlerFunc
-	ListMoviesHandler  http.HandlerFunc
+	HealthCheckHandler  http.HandlerFunc
+	ShowMovieHandler    http.HandlerFunc
+	CreateMovieHandler  http.HandlerFunc
+	UpdateMovieHandler  http.HandlerFunc
+	DeleteMovieHandler  http.HandlerFunc
+	ListMoviesHandler   http.HandlerFunc
+	RegisterUserHandler http.HandlerFunc
 }
 
 func Routes(handlers Handlers) http.Handler {
@@ -26,6 +27,8 @@ func Routes(handlers Handlers) http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/movies", handlers.CreateMovieHandler)
 	router.HandlerFunc(http.MethodPatch, "/v1/movies/:id", handlers.UpdateMovieHandler)
 	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", handlers.DeleteMovieHandler)
+
+	router.HandlerFunc(http.MethodPost, "/v1/users", handlers.RegisterUserHandler)
 
 	return recoverPanic(rateLimit(router))
 }
