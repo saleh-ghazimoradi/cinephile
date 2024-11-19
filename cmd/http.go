@@ -39,13 +39,15 @@ var httpCmd = &cobra.Command{
 
 		movieDB := repository.NewMovieRepository(db)
 		userDB := repository.NewUserRepository(db)
+		tokenDB := repository.NewTokenRepository(db)
 
 		movieService := service.NewMovieService(movieDB)
 		userService := service.NewUserService(userDB)
+		tokenService := service.NewTokenService(tokenDB)
 		mailerService := service.NewMail(config.Appconfig.SMTPHost, config.Appconfig.SMTPPort, config.Appconfig.SMTPUsername, config.Appconfig.SMTPPassword, config.Appconfig.SMTPSender)
 
 		movieHandler := gateway.NewMovieHandler(movieService)
-		userHandler := gateway.NewUserHandler(userService, mailerService)
+		userHandler := gateway.NewUserHandler(userService, mailerService, tokenService)
 
 		routesHandler := gateway.Handlers{
 			HealthCheckHandler:  gateway.HealthCheckHandler,
@@ -55,6 +57,7 @@ var httpCmd = &cobra.Command{
 			DeleteMovieHandler:  movieHandler.DeleteMovieHandler,
 			ListMoviesHandler:   movieHandler.ListMoviesHandler,
 			RegisterUserHandler: userHandler.RegisterUserHandler,
+			ActivateUserHandler: userHandler.ActivateUserHandler,
 		}
 
 		if err := gateway.Server(gateway.Routes(routesHandler)); err != nil {

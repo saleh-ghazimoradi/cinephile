@@ -13,6 +13,7 @@ type Handlers struct {
 	DeleteMovieHandler  http.HandlerFunc
 	ListMoviesHandler   http.HandlerFunc
 	RegisterUserHandler http.HandlerFunc
+	ActivateUserHandler http.HandlerFunc
 }
 
 func Routes(handlers Handlers) http.Handler {
@@ -29,6 +30,8 @@ func Routes(handlers Handlers) http.Handler {
 	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", handlers.DeleteMovieHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", handlers.RegisterUserHandler)
+
+	router.HandlerFunc(http.MethodPut, "/v1/users/activated", handlers.ActivateUserHandler)
 
 	return recoverPanic(rateLimit(router))
 }
