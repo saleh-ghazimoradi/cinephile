@@ -34,7 +34,15 @@ func Server(router http.Handler) error {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		shutdownError <- srv.Shutdown(ctx)
+		err := srv.Shutdown(ctx)
+		if err != nil {
+			shutdownError <- err
+		}
+
+		logger.Logger.Info("completing background tasks", "addr", srv.Addr)
+
+		wg.Wait()
+		shutdownError <- nil
 	}()
 
 	logger.Logger.Info("starting server", "addr", srv.Addr, "env", config.Appconfig.Env)

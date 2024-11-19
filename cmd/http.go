@@ -4,12 +4,10 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
 	"github.com/saleh-ghazimoradi/cinephile/config"
 	"github.com/saleh-ghazimoradi/cinephile/internal/gateway"
 	"github.com/saleh-ghazimoradi/cinephile/internal/repository"
 	"github.com/saleh-ghazimoradi/cinephile/internal/service"
-	"github.com/saleh-ghazimoradi/cinephile/logger"
 	"github.com/saleh-ghazimoradi/cinephile/utils"
 	"github.com/spf13/cobra"
 	"log"
@@ -20,7 +18,6 @@ var httpCmd = &cobra.Command{
 	Use:   "http",
 	Short: "launching the http rest listen server",
 	Run: func(cmd *cobra.Command, args []string) {
-		logger.Logger.Info("server has started", "addr", config.Appconfig.ServerAddress, "env", config.Appconfig.Env)
 
 		cfg := utils.PostgresConfig{
 			Host:         config.Appconfig.DBHost,
@@ -34,7 +31,6 @@ var httpCmd = &cobra.Command{
 			MaxOpenConns: config.Appconfig.MaxOpenConns,
 			Timeout:      config.Appconfig.Timeout,
 		}
-		fmt.Println(cfg)
 
 		db, err := utils.PostgresConnection(cfg)
 		if err != nil {
@@ -43,10 +39,14 @@ var httpCmd = &cobra.Command{
 
 		movieDB := repository.NewMovieRepository(db)
 		userDB := repository.NewUserRepository(db)
+
 		movieService := service.NewMovieService(movieDB)
 		userService := service.NewUserService(userDB)
+		mailerService := service.NewMail(config.Appconfig.SMTPHost, config.Appconfig.SMTPPort, config.Appconfig.SMTPUsername, config.Appconfig.SMTPPassword, config.Appconfig.SMTPSender)
+
 		movieHandler := gateway.NewMovieHandler(movieService)
-		userHandler := gateway.NewUserHandler(userService)
+		userHandler := gateway.NewUserHandler(userService, mailerService)
+
 		routesHandler := gateway.Handlers{
 			HealthCheckHandler:  gateway.HealthCheckHandler,
 			ShowMovieHandler:    movieHandler.ShowMovieHandler,

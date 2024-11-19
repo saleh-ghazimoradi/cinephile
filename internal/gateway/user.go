@@ -5,11 +5,13 @@ import (
 	"github.com/saleh-ghazimoradi/cinephile/internal/repository"
 	"github.com/saleh-ghazimoradi/cinephile/internal/service"
 	"github.com/saleh-ghazimoradi/cinephile/internal/service/service_models"
+	"github.com/saleh-ghazimoradi/cinephile/logger"
 	"net/http"
 )
 
 type userHandler struct {
 	userService service.User
+	mailService service.Mail
 }
 
 func (u *userHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,14 +45,22 @@ func (u *userHandler) RegisterUserHandler(w http.ResponseWriter, r *http.Request
 		}
 		return
 	}
-	if err := writeJSON(w, http.StatusCreated, envelope{"user": user}, nil); err != nil {
+
+	background(func() {
+		if err := u.mailService.Send(user.Email, "user_welcome.tmpl", user); err != nil {
+			logger.Logger.Error(err.Error())
+		}
+	})
+
+	if err := writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil); err != nil {
 		serverErrorResponse(w, r, err)
 		return
 	}
 }
 
-func NewUserHandler(userService service.User) *userHandler {
+func NewUserHandler(userService service.User, mailService service.Mail) *userHandler {
 	return &userHandler{
 		userService: userService,
+		mailService: mailService,
 	}
 }

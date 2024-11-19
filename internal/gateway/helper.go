@@ -3,12 +3,17 @@ package gateway
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"github.com/saleh-ghazimoradi/cinephile/logger"
 	"net/http"
 	"strconv"
+	"sync"
 )
 
 type envelope map[string]any
+
+var wg sync.WaitGroup
 
 func readIDParam(r *http.Request) (int64, error) {
 	params := httprouter.ParamsFromContext(r.Context())
@@ -43,4 +48,17 @@ func readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	return decoder.Decode(dst)
+}
+
+func background(fn func()) {
+	wg.Add(1)
+	go func() {
+		defer func() {
+			defer wg.Done()
+			if err := recover(); err != nil {
+				logger.Logger.Error(fmt.Sprintf("%v", err))
+			}
+		}()
+		fn()
+	}()
 }

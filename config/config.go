@@ -26,6 +26,11 @@ type Config struct {
 	RPS              float64       `mapstructure:"RPS"`
 	Burst            int           `mapstructure:"BURST"`
 	RateLimitEnabled bool          `mapstructure:"RATE_LIMIT_ENABLED"`
+	SMTPHost         string        `mapstructure:"SMTP_HOST"`
+	SMTPPort         int           `mapstructure:"SMTP_PORT"`
+	SMTPUsername     string        `mapstructure:"SMTP_USERNAME"`
+	SMTPPassword     string        `mapstructure:"SMTP_PASSWORD"`
+	SMTPSender       string        `mapstructure:"SMTP_SENDER"`
 }
 
 func LoadingConfig(path string) error {
